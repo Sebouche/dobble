@@ -1,0 +1,5 @@
+/home/sebastian/dobble/build/CMakeFiles/rebuild_cache.dir
+/home/sebastian/dobble/build/CMakeFiles/edit_cache.dir
+/home/sebastian/dobble/build/CMakeFiles/dobble.dir
+/home/sebastian/dobble/build/CMakeFiles/package_source.dir
+/home/sebastian/dobble/build/CMakeFiles/package.dir
