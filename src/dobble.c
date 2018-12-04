@@ -79,13 +79,14 @@ void renderScene()
 	for (angle = 0.; angle < 360.; angle += 360. / 7.)
 	{
 		rotation = sin(angle) * angle + 120.;
-		icon=rand()%8;
+		icon= rand()%80;
 		drawIcon(currentCard, icon, radius, angle, rotation, scale, &cx, &cy);
 
 		// (cx, cy) est le centre de l'icône placé à l'écran (en pixels)
 	}
+	icon=rand()%80;
 	rotation = 120.;
-	drawIcon(currentCard, 0, 0., angle, rotation, scale, &cx, &cy);
+	drawIcon(currentCard, icon, 0., angle, rotation, scale, &cx, &cy);
 
 	// Dessin de la carte inférieure
 	currentCard = LowerCard;
