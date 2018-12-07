@@ -17,9 +17,13 @@ static bool trouve = true;
 double rotations[16];
 double scales[16];
 int icons[16];
+int posX;
+int posY;
 
 void onMouseMove(int x, int y)
 {
+	posX=x;
+	posY=y;
 	printf("dobble: Position de la souris: (%3d %3d)\r", x, y);
 	fflush(stdout);
 }
@@ -30,7 +34,10 @@ void onMouseClick()
 
 	if (timerRunning) {
 		if (1 == 1) {
-			if (trouve) {
+			int cardCenterX, cardCenterY;
+			getCardCenter(UpperCard, &cardCenterX, &cardCenterY);
+			if (posX>=CARD_RADIUS * 0.6 * cos(0. / 360. * (2. * M_PI)) + cardCenterX-45 && posX<=CARD_RADIUS * 0.6 * cos(0. / 360. * (2. * M_PI)) + cardCenterX+45 && posY>=CARD_RADIUS * 0.6 * sin(0. / 360. * (2. * M_PI)) + cardCenterY-45 && posY<=CARD_RADIUS * 0.6 * sin(0. / 360. * (2. * M_PI)) + cardCenterY+45) {
+				trouve=true;
 				timer += 3;
 				score += 1;
 			} else {
@@ -41,7 +48,7 @@ void onMouseClick()
 				}
 			}
 		} else {
-			printf("Vous devez cliquer sur une icone");
+			printf("Vous devez cliquer sur une icone de la carte du dessus");
 		}
 	} else {
 		printf("\ndobble: Démarrage du compte à rebours.\n");
