@@ -63,6 +63,19 @@ void onTimerTick()
 
 }
 
+//Renvoi l'indice de l'image en commun sur la carte superieure 
+int indicecommun(int Liste1[], int Liste2[])
+{
+	for (int i = 0; i < 7; i++) {
+		for (int j = 0; j < 7; j++) {
+			if (Liste1[i] == Liste2[j]) {
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
 void renderScene()
 {
 	char title[100];
@@ -109,7 +122,6 @@ void renderScene()
 		i++;
 		drawIcon(currentCard, icon, 0., angle, rotation, scale, &cx,
 			 &cy);
-
 
 		// Dessin de la carte inférieure
 		currentCard = LowerCard;
