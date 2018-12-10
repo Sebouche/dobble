@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "dobble-config.h"
 #include "dobble.h"
@@ -19,11 +20,65 @@ double scales[16];
 int icons[16];
 int posX;
 int posY;
+char *Options[4];
+int Nboptions;
+int positionactuelle = -1;
+SDL_Rect rectangles[4];
+SDL_Point Souris;
+
+void initMenu(char ** parametres , int Nb)
+{
+	for (int i = 0; i < Nb; i++) {
+		Options[i]=parametres[i];
+		rectangles[i].x = WIN_WIDTH / 2 - 40;
+		rectangles[i].y = i * 100 + 100;
+		rectangles[i].w = 80;
+		rectangles[i].h = 40;
+	}
+	Nboptions=Nb;
+	Souris.x = 0;
+	Souris.y = 0;
+}
+
+void renderMenu()
+{
+	clearWindow();
+	if (positionactuelle != -1) {
+		char title[100];
+		sprintf(title, "|%s|", Options[positionactuelle]);
+		drawText(title, WIN_WIDTH / 2, positionactuelle * 100 + 100,
+			 Center, Top);
+	}
+	for (int j = 0; j < Nboptions; j++) {
+		if (j != positionactuelle) {
+			drawText(Options[j], WIN_WIDTH / 2, j * 100 + 100,
+				 Center, Top);
+		}
+	}
+	showWindow();
+}
+
+
+void onMouseMoveMenu(int x, int y)
+{
+	Souris.x = x;
+	Souris.y = y;
+	for (int i = 0; i < Nboptions; i++) {
+		if (SDL_PointInRect(&Souris, &rectangles[i])) {
+			positionactuelle = i;
+			i = Nboptions;
+		} else {
+			positionactuelle = -1;
+		}
+
+	}
+	renderMenu();
+}
 
 void onMouseMove(int x, int y)
 {
-	posX=x;
-	posY=y;
+	posX = x;
+	posY = y;
 	printf("dobble: Position de la souris: (%3d %3d)\r", x, y);
 	fflush(stdout);
 }
@@ -32,30 +87,36 @@ void onMouseClick()
 {
 	printf("\ndobble: Clic de la souris.\n");
 
-	if (timerRunning) {
-		if (1 == 1) {
-			int cardCenterX, cardCenterY;
-			getCardCenter(UpperCard, &cardCenterX, &cardCenterY);
-			if (posX>=CARD_RADIUS * 0.6 * cos(0. / 360. * (2. * M_PI)) + cardCenterX-45 && posX<=CARD_RADIUS * 0.6 * cos(0. / 360. * (2. * M_PI)) + cardCenterX+45 && posY>=CARD_RADIUS * 0.6 * sin(0. / 360. * (2. * M_PI)) + cardCenterY-45 && posY<=CARD_RADIUS * 0.6 * sin(0. / 360. * (2. * M_PI)) + cardCenterY+45) {
-				trouve=true;
-				timer += 3;
-				score += 1;
-			} else {
-				timer -= 3;
-				if (timer <= 0) {
-					stopTimer();
-					printf("Fin du temps");
-				}
-			}
+	if (1 == 1) {
+		int cardCenterX, cardCenterY;
+		getCardCenter(UpperCard, &cardCenterX, &cardCenterY);
+		if (posX >=
+		    CARD_RADIUS * 0.6 * cos(0. / 360. * (2. * M_PI)) +
+		    cardCenterX - 45
+		    && posX <=
+		    CARD_RADIUS * 0.6 * cos(0. / 360. * (2. * M_PI)) +
+		    cardCenterX + 45
+		    && posY >=
+		    CARD_RADIUS * 0.6 * sin(0. / 360. * (2. * M_PI)) +
+		    cardCenterY - 45
+		    && posY <=
+		    CARD_RADIUS * 0.6 * sin(0. / 360. * (2. * M_PI)) +
+		    cardCenterY + 45) {
+			trouve = true;
+			timer += 3;
+			score += 1;
 		} else {
-			printf("Vous devez cliquer sur une icone de la carte du dessus");
+			timer -= 3;
+			if (timer <= 0) {
+				stopTimer();
+				printf("Fin du temps");
+			}
 		}
 	} else {
-		printf("\ndobble: Démarrage du compte à rebours.\n");
-		timer = 60;
-		startTimer();
-		timerRunning = true;
+		printf
+		    ("Vous devez cliquer sur une icone de la carte du dessus");
 	}
+
 }
 
 void onTimerTick()
@@ -179,6 +240,91 @@ void renderScene()
 	showWindow();
 }
 
+void printstat()
+{
+	char title[100];
+	// Efface le contenu de la fenêtre
+	clearWindow();
+	sprintf(title, "RICM3-Dobble    Score %d", score);
+	drawText(title, WIN_WIDTH / 2, 0, Center, Top);
+	sprintf(title, "Temps %d", timer);
+	drawText(title, WIN_WIDTH / 2, 25, Center, Top);
+	showWindow();
+}
+
+void sauvegarder()
+{
+}
+
+void printresultat()
+{
+	char title[100];
+	// Efface le contenu de la fenêtre
+	clearWindow();
+	sprintf(title, "Votre score est : ");
+	drawText(title, WIN_WIDTH / 2, 0, Center, Top);
+	sprintf(title, "%d", score);
+	drawText(title, WIN_WIDTH / 2, 25, Center, Top);
+	sprintf(title, "Bravo!");
+	drawText(title, WIN_WIDTH / 2, 50, Center, Top);
+	showWindow();
+}
+
+void menuLoop()
+{
+	int quit = 0;
+	SDL_Event event;
+	char *parametres[4]={ "Jouer", "Options", "Statistiques", "Quitter" };
+	initMenu(parametres,4);
+	while (!quit) {
+		SDL_WaitEvent(&event);
+
+		switch (event.type) {
+		case SDL_MOUSEMOTION:
+			onMouseMoveMenu(event.motion.x, event.motion.y);
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			switch (positionactuelle) {
+			case 0:
+				printf
+				    ("\ndobble: Démarrage du compte à rebours.\n");
+				timer = 60;
+				startTimer();
+				timerRunning = true;
+				mainLoop();
+				printresultat();
+				sauvegarder();
+				break;
+			case 1:
+				parametres[0]="Facile";
+				parametres[1]="Normal";
+				parametres[2]="Difficile";
+				initMenu(parametres,3);
+				break;
+			case 2:
+				printstat();
+				break;
+			case 3:
+				quit = 1;
+				break;
+			}
+
+			break;
+		case SDL_WINDOWEVENT:
+			renderMenu();
+			break;
+		case SDL_QUIT:
+			printf("Merci d'avoir joué!\n");
+			quit = 1;
+			break;
+		}
+
+	}
+}
+
+
+
+
 int main(int argc, char **argv)
 {
 	srand(time(NULL));
@@ -192,9 +338,8 @@ int main(int argc, char **argv)
 		printf("dobble: Echec du chargement des icônes.\n");
 		return -1;
 	}
-
-	mainLoop();
-
+	SDL_init(SDL_INIT_AUDIO);
+	menuLoop();
 	freeGraphics();
 
 	return 0;
