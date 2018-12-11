@@ -54,6 +54,17 @@ void getIconLocationInMatrix(int iconId, int *posX, int *posY)
 	*posY = 90*(iconId/10);
 }
 
+SDL_Texture* CreateTexture(SDL_Surface* image)
+{return SDL_CreateTextureFromSurface(g.renderer,image);
+}
+
+void RenderImage(SDL_Texture* textureimage)
+{SDL_Rect position;
+position.x=WIN_WIDTH/2-136;
+position.y=20;
+SDL_QueryTexture(textureimage,NULL,NULL,&position.w,&position.h);
+SDL_RenderCopy(g.renderer,textureimage,NULL,&position);
+}
 /****************** METHODES UTILITAIRES ******************/
 
 void getCardCenter(CardPosition card, int *cardCenterX, int *cardCenterY)

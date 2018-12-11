@@ -23,19 +23,22 @@ int posY;
 char *Options[4];
 int Nboptions;
 int positionactuelle = -1;
+int difficulte = 1;
 SDL_Rect rectangles[4];
 SDL_Point Souris;
+SDL_Texture *TextureImage;
 
-void initMenu(char ** parametres , int Nb)
+//initialise le menu avec les options choisies
+void initMenu(char **parametres, int Nb)
 {
 	for (int i = 0; i < Nb; i++) {
-		Options[i]=parametres[i];
+		Options[i] = parametres[i];
 		rectangles[i].x = WIN_WIDTH / 2 - 40;
-		rectangles[i].y = i * 100 + 100;
+		rectangles[i].y = i * 50 + 300;
 		rectangles[i].w = 80;
 		rectangles[i].h = 40;
 	}
-	Nboptions=Nb;
+	Nboptions = Nb;
 	Souris.x = 0;
 	Souris.y = 0;
 }
@@ -43,21 +46,21 @@ void initMenu(char ** parametres , int Nb)
 void renderMenu()
 {
 	clearWindow();
+	RenderImage(TextureImage);
 	if (positionactuelle != -1) {
 		char title[100];
 		sprintf(title, "|%s|", Options[positionactuelle]);
-		drawText(title, WIN_WIDTH / 2, positionactuelle * 100 + 100,
+		drawText(title, WIN_WIDTH / 2, positionactuelle * 50 + 300,
 			 Center, Top);
 	}
 	for (int j = 0; j < Nboptions; j++) {
 		if (j != positionactuelle) {
-			drawText(Options[j], WIN_WIDTH / 2, j * 100 + 100,
+			drawText(Options[j], WIN_WIDTH / 2, j * 50 + 300,
 				 Center, Top);
 		}
 	}
 	showWindow();
 }
-
 
 void onMouseMoveMenu(int x, int y)
 {
@@ -240,22 +243,47 @@ void renderScene()
 	showWindow();
 }
 
+//affiche les scores
 void printstat()
 {
 	char title[100];
 	// Efface le contenu de la fenêtre
 	clearWindow();
-	sprintf(title, "RICM3-Dobble    Score %d", score);
-	drawText(title, WIN_WIDTH / 2, 0, Center, Top);
-	sprintf(title, "Temps %d", timer);
-	drawText(title, WIN_WIDTH / 2, 25, Center, Top);
+	sprintf(title, "Facile");
+	drawText(title, WIN_WIDTH / 2 - 80, WIN_HEIGHT / 2, Center, Top);
+	sprintf(title, "Normal");
+	drawText(title, WIN_WIDTH / 2, WIN_HEIGHT / 2, Center, Top);
+	sprintf(title, "Difficile");
+	drawText(title, WIN_WIDTH / 2 + 90, WIN_HEIGHT / 2, Center, Top);
+	sprintf(title, "Meilleur");
+	drawText(title, WIN_WIDTH / 2 - 140, WIN_HEIGHT / 2 + 80, Center, Top);
+	sprintf(title, "Score");
+	drawText(title, WIN_WIDTH / 2 - 140, WIN_HEIGHT / 2 + 100, Center, Top);
+	sprintf(title, "Score");
+	drawText(title, WIN_WIDTH / 2 - 140, WIN_HEIGHT / 2 + 130, Center, Top);
+	sprintf(title, "Moyen");
+	drawText(title, WIN_WIDTH / 2 - 140, WIN_HEIGHT / 2 + 150, Center, Top);
+	sprintf(title, "%d", score);
+	drawText(title, WIN_WIDTH / 2 - 80, WIN_HEIGHT / 2 + 80, Center, Top);
+	sprintf(title, "%d", score);
+	drawText(title, WIN_WIDTH / 2 - 80, WIN_HEIGHT / 2 + 130, Center, Top);
+	sprintf(title, "%d", score);
+	drawText(title, WIN_WIDTH / 2, WIN_HEIGHT / 2 + 80, Center, Top);
+	sprintf(title, "%d", score);
+	drawText(title, WIN_WIDTH / 2, WIN_HEIGHT / 2 + 130, Center, Top);
+	sprintf(title, "%d", score);
+	drawText(title, WIN_WIDTH / 2 + 90, WIN_HEIGHT / 2 + 80, Center, Top);
+	sprintf(title, "%d", timer);
+	drawText(title, WIN_WIDTH / 2 + 90, WIN_HEIGHT / 2 + 130, Center, Top);
 	showWindow();
 }
 
+//sauvegarde le score
 void sauvegarder()
 {
 }
 
+//Affiche le score en fin de partie
 void printresultat()
 {
 	char title[100];
@@ -270,12 +298,15 @@ void printresultat()
 	showWindow();
 }
 
+//Boucle principale
 void menuLoop()
 {
 	int quit = 0;
+	int quit2 = 0;
 	SDL_Event event;
-	char *parametres[4]={ "Jouer", "Options", "Statistiques", "Quitter" };
-	initMenu(parametres,4);
+	char *parametres[4] = { "Jouer", "Options", "Statistiques", "Quitter" };
+	char *parametres2[3] = { "Facile", "Normal", "Difficile" };
+	initMenu(parametres, 4);
 	while (!quit) {
 		SDL_WaitEvent(&event);
 
@@ -296,13 +327,45 @@ void menuLoop()
 				sauvegarder();
 				break;
 			case 1:
-				parametres[0]="Facile";
-				parametres[1]="Normal";
-				parametres[2]="Difficile";
-				initMenu(parametres,3);
+				initMenu(parametres2, 3);
+				while (!quit2) {
+					SDL_WaitEvent(&event);
+					switch (event.type) {
+					case SDL_MOUSEMOTION:
+						onMouseMoveMenu(event.motion.x,
+								event.motion.y);
+						break;
+					case SDL_MOUSEBUTTONDOWN:
+						if (positionactuelle != -1) {
+							difficulte =
+							    positionactuelle;
+						}
+						quit2 = 1;
+						break;
+					case SDL_WINDOWEVENT:
+						renderMenu();
+						break;
+					case SDL_QUIT:
+						printf
+						    ("Merci d'avoir joué!\n");
+						quit2 = 1;
+						quit = 1;
+						break;
+					}
+				}
+				quit2 = 0;
+				initMenu(parametres, 4);
+				renderMenu();
 				break;
 			case 2:
 				printstat();
+				while (!quit2) {
+					SDL_WaitEvent(&event);
+					if (event.type == SDL_MOUSEBUTTONDOWN) {
+						quit2 = 1;
+					}
+				}
+				quit2 = 0;
 				break;
 			case 3:
 				quit = 1;
@@ -315,6 +378,7 @@ void menuLoop()
 			break;
 		case SDL_QUIT:
 			printf("Merci d'avoir joué!\n");
+			quit2 = 1;
 			quit = 1;
 			break;
 		}
@@ -322,8 +386,52 @@ void menuLoop()
 	}
 }
 
+SDL_AudioSpec audioSortie;
+Uint32 audioLen, audioPos;
+SDL_AudioSpec audioBufferSpec;
+Uint8 *audioBuffer;
+Uint32 audioBufferLen;
 
+void audioCallBack(void *udata, Uint8 * stream, int len)
+{
+	// On ne lit que s'il reste des données à jouer
+	if (audioBufferLen == 0)
+		return;
 
+	// Remise à zéro du tampon de sortie
+	memset(stream, 0, len);
+
+	// Lecture du buffer audio
+	if (audioPos < audioBufferLen) {
+		if (audioPos + len > audioBufferLen)
+			len = audioLen = audioBufferLen;
+		SDL_MixAudio(stream, audioBuffer + audioPos,
+			     len, SDL_MIX_MAXVOLUME);
+		audioPos += len;
+	}
+	// Décrémentation de ce qu'il reste à lire
+	audioLen -= len;
+}
+
+int audio_Init(void)
+{
+	// Définition des propriétés audio
+	audioSortie.freq = 48000;
+	audioSortie.format = AUDIO_S16;
+	audioSortie.channels = 2;
+	audioSortie.samples = 1024;
+	audioSortie.callback = audioCallBack;
+	audioSortie.userdata = NULL;
+
+	// Initialisation de la couche audio
+	if (SDL_OpenAudio(&audioSortie, NULL) < 0) {
+		fprintf(stderr, "Erreur d'ouverture audio: %s\n",
+			SDL_GetError());
+		return (-1);
+	}
+
+	return 0;
+}
 
 int main(int argc, char **argv)
 {
@@ -338,9 +446,31 @@ int main(int argc, char **argv)
 		printf("dobble: Echec du chargement des icônes.\n");
 		return -1;
 	}
-	SDL_init(SDL_INIT_AUDIO);
+	SDL_Surface *image = IMG_Load("../logo.png");
+	if (!image) {
+		printf("Erreur de chargement de l'image : %s", SDL_GetError());
+		return -1;
+	}
+	TextureImage = CreateTexture(image);
+	SDL_Init(SDL_INIT_AUDIO);
+	if (audio_Init() == -1) {
+		return -1;
+	}
+	if (!SDL_LoadWAV("../dobble.wav", &audioBufferSpec,
+			 &audioBuffer, &audioBufferLen)) {
+		printf("Erreur lors du chargement du fichier WAV.\n");
+		return 1;
+	}
+	char title[100];
+	sprintf(title,DATA_DIRECTORY "/%s",argv[1]);
+	printf("%s",title);
+	FILE* f = fopen( title,"r"); // ouvre le fichier “fichier.txt” en lecture
+if (f == NULL) {
+// erreur d’ouverture
+}
+	SDL_PauseAudio(0);
 	menuLoop();
 	freeGraphics();
-
+	SDL_FreeWAV(audioBuffer);
 	return 0;
 }
