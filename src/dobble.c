@@ -37,6 +37,7 @@ SDL_Rect rectangles[4];
 SDL_Point Souris;
 SDL_Texture *TextureImage;
 
+<<<<<<< HEAD
 //Informations pour la musique
 SDL_AudioSpec audioSortie;
 Uint32 audioLen, audioPos;
@@ -45,6 +46,39 @@ Uint8 *audioBuffer;
 Uint32 audioBufferLen;
 
 
+=======
+
+
+void FileLoad(char* argfile)//méthode chargeant le fichier entré en parametre (mettre argv[1])
+{
+  FILE* file = fopen(DATA_DIRECTORY, "r");
+if (argfile == NULL) {
+printf("Echec d’ouverture du fichier.\n");
+}
+int Nb_cartes, Nb_icones, nbRead, lec;
+nbRead = fscanf(argfile, "%d %d", &Nb_cartes, &Nb_icones);
+if (nbRead != 2) {
+printf("Erreur de lecture.\n");
+}else {
+  printf("nombre de cartes : %i\n",Nb_cartes);
+  printf("nombre d'icones : %i\n",Nb_icones);
+  int tabIcones[Nb_cartes][Nb_icones];
+  for (int i=0;i<Nb_cartes;i++)
+  {
+    for(int j=0;j<Nb_icones;j++)
+    {
+      fscanf(argfile,"%d", &lec);
+      tabIcones[i][j]=lec;
+      printf("%d",tabIcones[i][j]);
+    }
+    printf("\n");
+  }//contient toutes les cartes possibles
+}
+
+fclose(argfile);
+}
+
+>>>>>>> 9cc3fc6acb0ef5d8ede8bffbdd1dafc79b7ac6af
 //initialise le menu avec les options choisies
 void initMenu(char **parametres, int Nb)
 {
@@ -155,7 +189,7 @@ int onTimerTick()
 	return 0;
 }
 
-//Renvoi l'indice de l'image en commun sur la carte superieure 
+//Renvoi l'indice de l'image en commun sur la carte superieure
 int indicecommun(int Liste1[], int Liste2[])
 {
 	for (int i = 0; i < 7; i++) {
@@ -476,6 +510,9 @@ int audio_Init(void)
 int main(int argc, char **argv)
 {
 	srand(time(NULL));
+	char ccf[100];//ccf=chemin complet du fichier
+	sprintf(ccf,DATA_DIRECTORY "/%s",argv[1]);
+	FileLoad(ccf);
 	if (!initializeGraphics()) {
 		printf
 		    ("dobble: Echec de l'initialisation de la librairie graphique.\n");
@@ -501,12 +538,15 @@ int main(int argc, char **argv)
 		printf("Erreur lors du chargement du fichier WAV.\n");
 		return 1;
 	}
+<<<<<<< HEAD
 	char title[100];
 	sprintf(title, DATA_DIRECTORY "/%s", argv[1]);
 	FILE *f = fopen(title, "r");	// ouvre le fichier “fichier.txt” en lecture
 	if (f == NULL) {
 // erreur d’ouverture
 	}
+=======
+>>>>>>> 9cc3fc6acb0ef5d8ede8bffbdd1dafc79b7ac6af
 	SDL_PauseAudio(0);
 	menuLoop();
 	freeGraphics();
