@@ -23,6 +23,8 @@ typedef enum { Left,
  * @param posY    Pointeur pour retourner la coordonnée Y du coin supérieur gauche de l'icône (en pixels)
  */
 void getIconLocationInMatrix(int iconId, int *posX, int *posY);
+SDL_Texture* CreateTexture(SDL_Surface* image);
+void RenderImage(SDL_Texture* textureimage);
 
 /****************** METHODES UTILITAIRES ******************/
 

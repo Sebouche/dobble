@@ -19,7 +19,7 @@ void onMouseClick();
  * Fonction appelée chaque seconde par le compte à rebours lorsque celui-ci est
  * activé.
  */
-void onTimerTick();
+int onTimerTick();
 
 /**
  * renderScene calcule ce qui va être affiché ensuite à l'écran. Toutes
