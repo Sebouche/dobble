@@ -37,7 +37,7 @@ SDL_Rect rectangles[4];
 SDL_Point Souris;
 SDL_Texture *TextureImage;
 
-<<<<<<< HEAD
+
 //Informations pour la musique
 SDL_AudioSpec audioSortie;
 Uint32 audioLen, audioPos;
@@ -46,7 +46,7 @@ Uint8 *audioBuffer;
 Uint32 audioBufferLen;
 
 
-=======
+
 
 
 void FileLoad(char* argfile)//méthode chargeant le fichier entré en parametre (mettre argv[1])
@@ -78,7 +78,7 @@ printf("Erreur de lecture.\n");
 fclose(argfile);
 }
 
->>>>>>> 9cc3fc6acb0ef5d8ede8bffbdd1dafc79b7ac6af
+
 //initialise le menu avec les options choisies
 void initMenu(char **parametres, int Nb)
 {
@@ -538,15 +538,12 @@ int main(int argc, char **argv)
 		printf("Erreur lors du chargement du fichier WAV.\n");
 		return 1;
 	}
-<<<<<<< HEAD
 	char title[100];
 	sprintf(title, DATA_DIRECTORY "/%s", argv[1]);
 	FILE *f = fopen(title, "r");	// ouvre le fichier “fichier.txt” en lecture
 	if (f == NULL) {
 // erreur d’ouverture
 	}
-=======
->>>>>>> 9cc3fc6acb0ef5d8ede8bffbdd1dafc79b7ac6af
 	SDL_PauseAudio(0);
 	menuLoop();
 	freeGraphics();
