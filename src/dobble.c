@@ -15,6 +15,7 @@ static bool timerRunning = false;
 
 //Score et temps et difficulté choisie (Facile de base)
 static int score = 0;
+static int GBHighscore=0;
 static int timer = 0;
 int difficulte = 1;
 
@@ -37,7 +38,6 @@ SDL_Rect rectangles[4];
 SDL_Point Souris;
 SDL_Texture *TextureImage;
 
-<<<<<<< HEAD
 //Informations pour la musique
 SDL_AudioSpec audioSortie;
 Uint32 audioLen, audioPos;
@@ -46,17 +46,14 @@ Uint8 *audioBuffer;
 Uint32 audioBufferLen;
 
 
-=======
-
-
 void FileLoad(char* argfile)//méthode chargeant le fichier entré en parametre (mettre argv[1])
 {
-  FILE* file = fopen(DATA_DIRECTORY, "r");
-if (argfile == NULL) {
-printf("Echec d’ouverture du fichier.\n");
+  FILE* file = fopen(argfile, "r");
+if (file == NULL) {
+printf("Echec d’ouverture du fichier passé en argument.\n");
 }
 int Nb_cartes, Nb_icones, nbRead, lec;
-nbRead = fscanf(argfile, "%d %d", &Nb_cartes, &Nb_icones);
+nbRead = fscanf(file, "%d %d", &Nb_cartes, &Nb_icones);
 if (nbRead != 2) {
 printf("Erreur de lecture.\n");
 }else {
@@ -67,7 +64,7 @@ printf("Erreur de lecture.\n");
   {
     for(int j=0;j<Nb_icones;j++)
     {
-      fscanf(argfile,"%d", &lec);
+      fscanf(file,"%d", &lec);
       tabIcones[i][j]=lec;
       printf("%d",tabIcones[i][j]);
     }
@@ -75,10 +72,92 @@ printf("Erreur de lecture.\n");
   }//contient toutes les cartes possibles
 }
 
-fclose(argfile);
+fclose(file);
 }
 
->>>>>>> 9cc3fc6acb0ef5d8ede8bffbdd1dafc79b7ac6af
+/*le nb de scores sur une ligne permet le parcours de cette dernière (une ligne= une difficulte)
+  la position permet la circulation à l'interieur du fichiers
+
+*/
+int parcourir_score(int arg_nbscores,int arg_difficulte, FILE* argfile)
+{
+
+   char Score [10];
+   int Highscore, otherscore,moy_score;
+   int nbscores;
+   nbscores=arg_nbscores;
+   while (nbscores > 0)
+   {
+     fscanf(argfile,"%d\n",&otherscore);
+     if(Highscore < otherscore)
+     {
+       Highscore = otherscore;
+     }
+     moy_score=moy_score+otherscore;
+     nbscores--;
+     //printf("le ptn de score de ta mère =) : %d\n", otherscore);
+   }
+
+   int final_score=arg_difficulte*score;
+   sprintf(Score,"%d",final_score);
+   fputs(Score,argfile);
+ 	if (score > Highscore)
+ 	{
+ 		Highscore=score;
+ 	}
+
+   moy_score=(moy_score+score)/(arg_nbscores+1);
+   GBHighscore=Highscore;
+   //on écrit à la fin du fichier le nouveau score
+   return GBHighscore;
+}
+//sauvegarde le score et donne le Highscore dans le fichier
+void sauvegarder(int arg_difficulte)
+{
+ FILE* file = fopen("/home/sami/dobble/data/scores.txt", "r+");
+if (file == NULL) {
+printf("Echec d’ouverture du fichier scores.txt.\n");
+}
+else {
+  int nbscores;
+  fscanf(file,"%d",&nbscores);
+  char newnbscores[5];
+  switch (arg_difficulte) {
+
+    case 1:
+    printf("difficulte choisie: facile \n");
+    parcourir_score(nbscores,difficulte,file);
+    fseek(file,0,SEEK_SET);
+    nbscores=nbscores+1;
+    sprintf(newnbscores,"%d",nbscores);
+    fputs(newnbscores,file);
+    break;
+
+    case 2:
+    printf("difficulte choisie: moyen \n");
+    parcourir_score(nbscores,difficulte,file);
+    fseek(file,1,SEEK_SET);
+    nbscores=nbscores+1;
+    sprintf(newnbscores,"%d",nbscores);
+    fputs(newnbscores,file);
+    break;
+
+    case 3:
+    printf("difficulte choisie: difficile \n");
+    parcourir_score(nbscores,difficulte,file);
+    fseek(file,2,SEEK_SET);
+    nbscores=nbscores+1;
+    sprintf(newnbscores,"%d",nbscores);
+    fputs(newnbscores,file);
+
+    break;
+    default:
+    break;
+  }
+  fclose(file);
+}
+}
+
 //initialise le menu avec les options choisies
 void initMenu(char **parametres, int Nb)
 {
@@ -347,10 +426,6 @@ void printstat()
 	showWindow();
 }
 
-//sauvegarde le score
-void sauvegarder()
-{
-}
 
 //Affiche le score en fin de partie
 void printresultat()
@@ -395,7 +470,7 @@ void menuLoop()
 				timerRunning = true;
 				mainLoop();
 				printresultat();
-				sauvegarder();
+				sauvegarder(difficulte);
 				while (!quit2) {
 					SDL_WaitEvent(&event);
 					if (event.type == SDL_MOUSEBUTTONDOWN) {
@@ -511,7 +586,7 @@ int main(int argc, char **argv)
 {
 	srand(time(NULL));
 	char ccf[100];//ccf=chemin complet du fichier
-	sprintf(ccf,DATA_DIRECTORY "/%s",argv[1]);
+	sprintf(ccf,DATA_DIRECTORY "/%s",argv[1]);//fichiers à ouvrir: pg22.txt, pg23.txt ... pg29.txt
 	FileLoad(ccf);
 	if (!initializeGraphics()) {
 		printf
@@ -538,15 +613,6 @@ int main(int argc, char **argv)
 		printf("Erreur lors du chargement du fichier WAV.\n");
 		return 1;
 	}
-<<<<<<< HEAD
-	char title[100];
-	sprintf(title, DATA_DIRECTORY "/%s", argv[1]);
-	FILE *f = fopen(title, "r");	// ouvre le fichier “fichier.txt” en lecture
-	if (f == NULL) {
-// erreur d’ouverture
-	}
-=======
->>>>>>> 9cc3fc6acb0ef5d8ede8bffbdd1dafc79b7ac6af
 	SDL_PauseAudio(0);
 	menuLoop();
 	freeGraphics();
