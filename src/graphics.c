@@ -49,15 +49,17 @@ typedef struct
 
 void getIconLocationInMatrix(int iconId, int *posX, int *posY)
 {
-	
+	//On utilise une division par 10 car la matrice chargé contient 10 icones par ligne et  on multiplie par 90 car les images sont de 		//taille 90*90
 	*posX = 90*(iconId%10);
 	*posY = 90*(iconId/10);
 }
 
+//permet de creer une texture a partir d'une image en parametre
 SDL_Texture* CreateTexture(SDL_Surface* image)
 {return SDL_CreateTextureFromSurface(g.renderer,image);
 }
 
+//Affiche la texture a la position (x,y)
 void RenderImage(SDL_Texture* textureimage)
 {SDL_Rect position;
 position.x=WIN_WIDTH/2-136;
@@ -515,7 +517,7 @@ void mainLoop()
 			{
 				// Appel de la procédure onTimerTick déclarée dans dobble.h
 				// et implémentée dans dobble.c
-				onTimerTick();
+				quit = onTimerTick();
 			}
 			else if (event.user.type == g.userCallLaterEvent)
 			{

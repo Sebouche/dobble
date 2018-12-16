@@ -12,73 +12,22 @@
 
 /// Etat du compte à rebous (lancé/non lancé)
 static bool timerRunning = false;
-
-//Score et temps et difficulté choisie (Facile de base)
 static int score = 0;
 static int timer = 0;
-int difficulte = 1;
-
-//Informations sur les cartes
-int Nbicons=7;
 static bool trouve = true;
 double rotations[16];
 double scales[16];
-int radiuss[16];
 int icons[16];
-int indiceimage=0;
-
-//Informations pour le menu
 int posX;
 int posY;
 char *Options[4];
 int Nboptions;
 int positionactuelle = -1;
+int difficulte = 1;
 SDL_Rect rectangles[4];
 SDL_Point Souris;
 SDL_Texture *TextureImage;
 
-<<<<<<< HEAD
-//Informations pour la musique
-SDL_AudioSpec audioSortie;
-Uint32 audioLen, audioPos;
-SDL_AudioSpec audioBufferSpec;
-Uint8 *audioBuffer;
-Uint32 audioBufferLen;
-
-
-=======
-
-
-void FileLoad(char* argfile)//méthode chargeant le fichier entré en parametre (mettre argv[1])
-{
-  FILE* file = fopen(DATA_DIRECTORY, "r");
-if (argfile == NULL) {
-printf("Echec d’ouverture du fichier.\n");
-}
-int Nb_cartes, Nb_icones, nbRead, lec;
-nbRead = fscanf(argfile, "%d %d", &Nb_cartes, &Nb_icones);
-if (nbRead != 2) {
-printf("Erreur de lecture.\n");
-}else {
-  printf("nombre de cartes : %i\n",Nb_cartes);
-  printf("nombre d'icones : %i\n",Nb_icones);
-  int tabIcones[Nb_cartes][Nb_icones];
-  for (int i=0;i<Nb_cartes;i++)
-  {
-    for(int j=0;j<Nb_icones;j++)
-    {
-      fscanf(argfile,"%d", &lec);
-      tabIcones[i][j]=lec;
-      printf("%d",tabIcones[i][j]);
-    }
-    printf("\n");
-  }//contient toutes les cartes possibles
-}
-
-fclose(argfile);
-}
-
->>>>>>> 9cc3fc6acb0ef5d8ede8bffbdd1dafc79b7ac6af
 //initialise le menu avec les options choisies
 void initMenu(char **parametres, int Nb)
 {
@@ -145,28 +94,26 @@ void onMouseClick()
 		int cardCenterX, cardCenterY;
 		getCardCenter(UpperCard, &cardCenterX, &cardCenterY);
 		if (posX >=
-		    CARD_RADIUS * 0.6 * cos(indiceimage / 360. * (2. * M_PI)) +
+		    CARD_RADIUS * 0.6 * cos(0. / 360. * (2. * M_PI)) +
 		    cardCenterX - 45
 		    && posX <=
-		    CARD_RADIUS * 0.6 * cos(indiceimage / 360. * (2. * M_PI)) +
+		    CARD_RADIUS * 0.6 * cos(0. / 360. * (2. * M_PI)) +
 		    cardCenterX + 45
 		    && posY >=
-		    CARD_RADIUS * 0.6 * sin(indiceimage / 360. * (2. * M_PI)) +
+		    CARD_RADIUS * 0.6 * sin(0. / 360. * (2. * M_PI)) +
 		    cardCenterY - 45
 		    && posY <=
-		    CARD_RADIUS * 0.6 * sin(indiceimage / 360. * (2. * M_PI)) +
+		    CARD_RADIUS * 0.6 * sin(0. / 360. * (2. * M_PI)) +
 		    cardCenterY + 45) {
 			trouve = true;
 			timer += 3;
 			score += 1;
-			renderScene();
 		} else {
 			timer -= 3;
 			if (timer <= 0) {
 				stopTimer();
 				printf("Fin du temps");
 			}
-			else{renderScene();}
 		}
 	} else {
 		printf
@@ -175,7 +122,6 @@ void onMouseClick()
 
 }
 
-//On decremente le temps toute les secondes et on met a jour l'affichage, si le temps est <=0 on arrete le timer et on renvoi 1 pour indiquer qu'il faut arreter la boucle
 int onTimerTick()
 {
 	timer -= 1;
@@ -189,7 +135,7 @@ int onTimerTick()
 	return 0;
 }
 
-//Renvoi l'indice de l'image en commun sur la carte superieure
+//Renvoi l'indice de l'image en commun sur la carte superieure 
 int indicecommun(int Liste1[], int Liste2[])
 {
 	for (int i = 0; i < 7; i++) {
@@ -211,13 +157,13 @@ void renderScene()
 	// Crée le titre qui sera affiché. Utile pour afficher le score.
 	sprintf(title, "RICM3-Dobble    Score %d", score);
 	drawText(title, WIN_WIDTH / 2, 0, Center, Top);
-	sprintf(title, "Temps restant %d", timer);
+	sprintf(title, "Temps %d", timer);
 	drawText(title, WIN_WIDTH / 2, 25, Center, Top);
 	//Crée les informations necessaires pour la creation des cartes
-	double radius ;
+	double radius = CARD_RADIUS * 0.6;
 	double angle;
 	double rotation;
-	double scale;
+	double scale = 1.;
 	int icon;
 	int cx, cy;
 	int i = 0;
@@ -228,13 +174,10 @@ void renderScene()
 		drawCardShape(currentCard, 5, 252, 252, 252, 155, 119, 170);
 
 		// Affichage des icônes de la carte du haut (régulièrement en cercle)
-		for (angle = 0.; angle < 360.; angle += 360. / Nbicons) {
-			radius=CARD_RADIUS * ((30+rand()%40)/100);
-			scale = radius/(CARD_RADIUS*0.6);
-			printf("%f\n",radius);
+		for (angle = 0.; angle < 360.; angle += 360. / 7.) {
+			//scale = (double)(rand() % 5 + 1) / 5;
 			rotation = rand() % 360;
 			icon = rand() % 80;
-			radiuss[i]=radius;
 			rotations[i] = rotation;
 			scales[i] = scale;
 			icons[i] = icon;
@@ -244,11 +187,9 @@ void renderScene()
 
 			// (cx, cy) est le centre de l'icône placé à l'écran (en pixels)
 		}
-		radius=CARD_RADIUS * ((100-rand()%50)/100);
-		scale = radius/(CARD_RADIUS*0.6);
+		//scale = (double)(rand() % 5 + 1) / 5;
 		icon = rand() % 80;
 		rotation = rand() % 360;
-		radiuss[i]=radius;
 		rotations[i] = rotation;
 		scales[i] = scale;
 		icons[i] = icon;
@@ -263,13 +204,11 @@ void renderScene()
 		drawCardShape(currentCard, 5, 252, 252, 252, 155, 119, 170);
 
 		// Affichage des icônes de la carte du bas (régulièrement en cercle)
-		for (angle = 0.; angle < 360.; angle += 360. / Nbicons) {
-			radius=CARD_RADIUS * ((100-rand()%50)/100);
-			scale = radius/(CARD_RADIUS*0.6);
+		for (angle = 0.; angle < 360.; angle += 360. / 7.) {
+			//scale = (double)(rand() % 5 + 1) / 5;
 			rotation = rand() % 360;
 			icon = rand() % 80;
 			rotation = sin(angle) * angle + 70.;
-			radiuss[i]=radius;
 			rotations[i] = rotation;
 			scales[i] = scale;
 			icons[i] = icon;
@@ -277,11 +216,9 @@ void renderScene()
 			drawIcon(currentCard, icon, radius, angle, rotation,
 				 scale, NULL, NULL);
 		}
-		radius=CARD_RADIUS * ((100-rand()%50)/100);
-		scale = radius/(CARD_RADIUS*0.6);
+		//scale = (double)(rand() % 5 + 1) / 5;
 		rotation = rand() % 360;
 		icon = rand() % 80;
-		radiuss[i]=radius;
 		rotations[i] = rotation;
 		scales[i] = scale;
 		icons[i] = icon;
@@ -293,10 +230,10 @@ void renderScene()
 		int j = 0;
 		drawCardShape(UpperCard, 5, 252, 252, 252, 155, 119, 170);
 		drawCardShape(LowerCard, 5, 252, 252, 252, 155, 119, 170);
-		for (angle = 0.; angle < 360.; angle += 360. / Nbicons) {
-			drawIcon(UpperCard, icons[j], radiuss[j], angle,
+		for (angle = 0.; angle < 360.; angle += 360. / 7.) {
+			drawIcon(UpperCard, icons[j], radius, angle,
 				 rotations[j], scales[j], &cx, &cy);
-			drawIcon(LowerCard, icons[j + 8], radiuss[j+8], angle,
+			drawIcon(LowerCard, icons[j + 8], radius, angle,
 				 rotations[j + 8], scales[j + 8], &cx, &cy);
 			j++;
 		}
@@ -315,9 +252,6 @@ void printstat()
 	char title[100];
 	// Efface le contenu de la fenêtre
 	clearWindow();
-	RenderImage(TextureImage);
-	sprintf(title, "Cliquez pour retourner au menu");
-	drawText(title, WIN_WIDTH / 2, WIN_HEIGHT/2 -60, Center, Top);
 	sprintf(title, "Facile");
 	drawText(title, WIN_WIDTH / 2 - 80, WIN_HEIGHT / 2, Center, Top);
 	sprintf(title, "Normal");
@@ -359,13 +293,11 @@ void printresultat()
 	// Efface le contenu de la fenêtre
 	clearWindow();
 	sprintf(title, "Votre score est : ");
-	drawText(title, WIN_WIDTH / 2, WIN_HEIGHT/2, Center, Top);
+	drawText(title, WIN_WIDTH / 2, 0, Center, Top);
 	sprintf(title, "%d", score);
-	drawText(title, WIN_WIDTH / 2, WIN_HEIGHT/2+25, Center, Top);
+	drawText(title, WIN_WIDTH / 2, 25, Center, Top);
 	sprintf(title, "Bravo!");
-	drawText(title, WIN_WIDTH / 2, WIN_HEIGHT/2+50, Center, Top);
-	sprintf(title, "Cliquez pour retourner au menu");
-	drawText(title, WIN_WIDTH / 2,WIN_HEIGHT/2+ 70, Center, Top);
+	drawText(title, WIN_WIDTH / 2, 50, Center, Top);
 	showWindow();
 }
 
@@ -445,7 +377,6 @@ void menuLoop()
 					}
 				}
 				quit2 = 0;
-				renderMenu();
 				break;
 			case 3:
 				quit = 1;
@@ -466,6 +397,11 @@ void menuLoop()
 	}
 }
 
+SDL_AudioSpec audioSortie;
+Uint32 audioLen, audioPos;
+SDL_AudioSpec audioBufferSpec;
+Uint8 *audioBuffer;
+Uint32 audioBufferLen;
 
 void audioCallBack(void *udata, Uint8 * stream, int len)
 {
@@ -510,9 +446,6 @@ int audio_Init(void)
 int main(int argc, char **argv)
 {
 	srand(time(NULL));
-	char ccf[100];//ccf=chemin complet du fichier
-	sprintf(ccf,DATA_DIRECTORY "/%s",argv[1]);
-	FileLoad(ccf);
 	if (!initializeGraphics()) {
 		printf
 		    ("dobble: Echec de l'initialisation de la librairie graphique.\n");
@@ -538,15 +471,12 @@ int main(int argc, char **argv)
 		printf("Erreur lors du chargement du fichier WAV.\n");
 		return 1;
 	}
-<<<<<<< HEAD
 	char title[100];
-	sprintf(title, DATA_DIRECTORY "/%s", argv[1]);
-	FILE *f = fopen(title, "r");	// ouvre le fichier “fichier.txt” en lecture
-	if (f == NULL) {
+	sprintf(title,DATA_DIRECTORY "/%s",argv[1]);
+	FILE* f = fopen( title,"r"); // ouvre le fichier “fichier.txt” en lecture
+if (f == NULL) {
 // erreur d’ouverture
-	}
-=======
->>>>>>> 9cc3fc6acb0ef5d8ede8bffbdd1dafc79b7ac6af
+}
 	SDL_PauseAudio(0);
 	menuLoop();
 	freeGraphics();
